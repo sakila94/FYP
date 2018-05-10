@@ -1,6 +1,6 @@
 % Script to test STIP features and Fisher Vector
 
-run('vlfeat-0.9.18/toolbox/vl_setup')
+run('vlfeat-0.9.18/toolbox/vl_setup') %/toolbox/vl_setup
 
 path=pwd;
 addpath(path);
