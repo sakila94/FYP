@@ -1,31 +1,29 @@
-function [pos,val,cimg,L]=harris_xyt(f,kparam,sxl2,stl2,sxi2,sti2,vx,vy)
+% ------------------------------------------------------------ %
+% @func - harris_xyt(f,kparam,sxl2,stl2,sxi2,sti2,vx,vy)
+% @info - computes spatio-temporal interest points based on
+%         Harris corner function.
+% @var - NEED TO DEFINE
+% @output - NEED TO DEFINE
+% ------------------------------------------------------------ %
+function [pos,val,cimg,L] = harris_xyt(f,kparam,sxl2,stl2,sxi2,sti2,vx,vy)
 
-%
-% [pos,val,cimg,L]=harris_xyt(f,kparam,sxl2,stl2,sxi2,sti2,vx,vy)
-%
-%   computes spatio-temporal interest points based on
-%   Harris corner function
-%
-
-if nargin<7
-  vx=0;
-  vy=0;
+if nargin < 7
+    vx = 0;
+    vy = 0;
 end
 
-
-
-fastflag=1;
+fastflag = 1;
 
 if fastflag
-  L=sepgaussconvfast_xyt(f,sxl2,stl2);
-  Lx=finitedifffast_xyt(L,dxmask3)*sqrt(sxl2);
-  Ly=finitedifffast_xyt(L,dymask3)*sqrt(sxl2);
-  Lt=finitedifffast_xyt(L,dtmask3)*sqrt(stl2);
+    L = sepgaussconvfast_xyt(f,sxl2,stl2);
+    Lx = finitedifffast_xyt(L,dxmask3)*sqrt(sxl2);
+    Ly = finitedifffast_xyt(L,dymask3)*sqrt(sxl2);
+    Lt = finitedifffast_xyt(L,dtmask3)*sqrt(stl2);
 else
-  L=sepgaussconv_xyt(f,sxl2,stl2);
-  Lx=crop3(filter3(extend3(L,4,4,4),dxmask3,'same'),4,4,4)*sqrt(sxl2);
-  Ly=crop3(filter3(extend3(L,4,4,4),dymask3,'same'),4,4,4)*sqrt(sxl2);
-  Lt=crop3(filter3(extend3(L,4,4,4),dtmask3,'same'),4,4,4)*sqrt(stl2);
+    L = sepgaussconv_xyt(f,sxl2,stl2);
+    Lx = crop3(filter3(extend3(L,4,4,4),dxmask3,'same'),4,4,4)*sqrt(sxl2);
+    Ly = crop3(filter3(extend3(L,4,4,4),dymask3,'same'),4,4,4)*sqrt(sxl2);
+    Lt = crop3(filter3(extend3(L,4,4,4),dtmask3,'same'),4,4,4)*sqrt(stl2);
 end
 
 a11=Lx.*Lx; a12=Lx.*Ly; a13=Lx.*Lt;

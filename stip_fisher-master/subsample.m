@@ -22,6 +22,7 @@ end
 % extract training/test list
 tt_list=[]; % train/test files
 tlists=dir(fullfile(tt_list_dir,reg_pattern));
+
 for i=1:length(tlists)
 	fid=fopen(fullfile(tt_list_dir,tlists(i).name));
 	tmp=textscan(fid,'%s%d');
@@ -35,6 +36,13 @@ switch t_type
 		HOG=[];
 		HOF=[];
 		parfor i=1:length(tt_list)
+            % ------------------------------------------------------------ %
+            % To be completed - Get STIP in here
+            % @info - In this place, the STIP file creation part should be
+            %         added to make an input to the EXTRACT_STIP_FEATURES
+            %         function.
+            % ------------------------------------------------------------ %
+            
 			action=regexprep(tt_list{i},'/v_(\w*)\.avi','');
 			act_dir=fullfile(params.stip_dir,action);
 			clip_name=regexprep(tt_list{i},'\.avi$',''); % get video clip name

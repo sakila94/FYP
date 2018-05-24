@@ -53,8 +53,11 @@ for i=1:stip_feat_num
 	
 	% Do PCA on train/test data to half-size original descriptors
 	fprintf('Doing PCA ...\n');
+    size(pca_coeff{i})
 	pca_coeff{i} = pca(feat');
-% 	pca_coeff{i} = pca_coeff{i}(:, 1:floor(size(feat,1)/2))';
+    size(pca_coeff{i})
+    size(feat,1)
+	pca_coeff{i} = pca_coeff{i}(:, 1:floor(size(feat,1)/2))';
 	% dimensionality reduction
 	feat = pca_coeff{i} * feat;
 

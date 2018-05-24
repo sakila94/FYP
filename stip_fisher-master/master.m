@@ -22,8 +22,8 @@ params.feat_len_map=containers.Map(params.feat_list, feat_len);
 params.feat_start=10; % start position of STIP features
 
 params.stip_dir=fullfile(path,'UCF101_STIP');
-params.train_list_dir=fullfile(path, 'ucfTrainTestlist'); 
-params.test_list_dir=fullfile(path, 'ucfTrainTestlist'); 
+params.train_list_dir=fullfile(path, 'ucfTrainTestlist');
+params.test_list_dir=fullfile(path, 'ucfTrainTestlist');
 
 params.train_data_info=fullfile(path,'data','UCF101_traindata_info.mat');
 params.test_data_info=fullfile(path,'data','UCF101_testdata_info.mat');
@@ -37,6 +37,8 @@ params.fv_train_file=fullfile(path,'data',sprintf('pca_gmm_data_train_sample%d_g
 params.fv_test_file=fullfile(path,'data',sprintf('pca_gmm_data_test_sample%d_gmm%d.mat',params.STIP_subsample_num,params.K));
 
 pred_results=fullfile(path,'data',sprintf('pred_results_sample%d_gmm%d.mat',params.STIP_subsample_num,params.K));
+
+fprintf('Starting Parpool Function ...\n');
 
 try
 	parpool close;

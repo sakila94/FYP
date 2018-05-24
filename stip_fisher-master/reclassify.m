@@ -1,4 +1,4 @@
-run('vlfeat-0.9.18/toolbox/vl_setup')
+run('vlfeat/toolbox/vl_setup')
 
 path=pwd;
 addpath(path);
