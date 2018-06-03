@@ -27,10 +27,10 @@ numFrames = videoInfo.NumberOfFrames; % TODO: Need to find the framing parameter
 
 % To create the result matrix
 f0 = il_rgb2gray(double(read(videoInfo, 1)));
-result = zeros([size(f0), numFrames]);
+result = zeros([size(f0), floor(numFrames/2)]);
 
-for iFrame=1:numFrames
-    result(:,:,iFrame)=il_rgb2gray(double(read(videoInfo, iFrame)));
+for iFrame=1:2:numFrames
+    result(:,:,(iFrame+1)/2)=il_rgb2gray(double(read(videoInfo, iFrame)));
 end
 
 

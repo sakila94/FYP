@@ -33,21 +33,26 @@ end
 % Compute Harris Points
 % ------------------------------------------------------------ %
 if 1
-    % Define spatial and temporal scales
-    sxl2 = 8; 
-    sxi2 = 2*sxl2;
-    stl2 = 4; 
-    sti2 = 2*stl2;
+    % ----------------------------------------- %
+    % Define Spatial and Temporal scales
+    % @brief - Read the Section 2.1 and 2.2 in On Space-Time
+    %          Interest Points
+    S = 2;
+    sxl2 = 4; % Image Smoothing variance
+    sxi2 = S*sxl2; % Smooth the Second Moment Matrix 
+    stl2 = 2; % Video Smoothing variance in time
+    sti2 = S*stl2; % Smooth the Second Moment Matrix
+    % ----------------------------------------- %
 
     % Detect all points
     fprintf('Detecting interest points...\n')  
-    [pos,val,cimg,L] = harris_xyt(f1,0.009 ,sxl2,stl2,sxi2,sti2);
+    [pos,val,cimg,L] = harris_xyt(f1,0.01,sxl2,stl2,sxi2,sti2);
 
     % Sort the points and select the strongest ones
     [sval, sposind] = sort(-val);
     hthresh = max(val(:))/10;
-    npts = min(size(pos,1),25);
-    possel = pos(sposind(1:npts),:);
+    npts = min(size(pos,1),40); % Number of points
+    possel = pos(sposind(1:npts),:); % This is the matrix(npts x 13(default))
 
     % Display detected points
     showcirclefeatures_xyt(f1,possel(:,1:5),[1 1 0]);
@@ -62,7 +67,7 @@ if 1
     posadaptall = [];
     valadaptall = [];
     for i = 1:size(possel,1)
-        posinit = possel(i,:);
+        posinit = possel(i,:); % Every detected Interest Points 
         fprintf('point %d of %d\n',i,size(possel,1))
         [pos, posevol, val] = adaptharris2_xyt(f1,posinit,0.25,0.25,...
                                                20,[1 1 1],64,64);

@@ -1,4 +1,4 @@
-function [pos, posevol, val]=adaptharris2_xyt(f,posinit,sxstep,ststep,maxiter,adaptflag,sxmax,stmax)
+function [pos, posevol, val] = adaptharris2_xyt(f,posinit,sxstep,ststep,maxiter,adaptflag,sxmax,stmax)
 
 %
 % [pos, posevol, val]=adaptharris2_xyt(f,posinit,sxstep,ststep,maxiter,adaptflag,sxmax,stmax)
@@ -24,23 +24,37 @@ if size(posinit,1)>1
   posinit=transpose(posinit);
 end
 
-valsel=0;
-possel=posinit;
-posprev=possel;
-posevol(1,:)=posinit;
+valsel = 0;
+possel = posinit;
+posprev = possel;
+posevol(1,:) = posinit;
 
 % default values
-if nargin<3 sxstep=0.25; end
-if nargin<4 ststep=0.25; end
-if nargin<5 maxiter=20; end
-if nargin<7 sxmax=100; end
-if nargin<8 stmax=100; end
-if nargin<6 adaptflag=[1 1 1]; end
-if size(adaptflag)==0 adaptflag=[1 1 1]; end
+if nargin<3 
+    sxstep=0.25; 
+end
+if nargin<4 
+    ststep=0.25; 
+end
+if nargin<5 
+    maxiter=20; 
+end
+if nargin<7 
+    sxmax=100; 
+end
+if nargin<8 
+    stmax=100; 
+end
+if nargin<6 
+    adaptflag=[1 1 1]; 
+end
+if size(adaptflag)==0 
+    adaptflag=[1 1 1]; 
+end
 
-scalesteporig=1*sqrt(sxstep^2+ststep^2);
-%scalesteporig=sqrt(2)*sqrt(sxstep^2+ststep^2);
-scalestep=scalesteporig;
+scalesteporig = 1*sqrt(sxstep^2+ststep^2);
+%scalesteporig = sqrt(2)*sqrt(sxstep^2+ststep^2);
+scalestep = scalesteporig;
 
 iter=0;
 velconvflag=0;
@@ -73,11 +87,15 @@ while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-pos
   vy=possel(1,7);
 
   % increase the spatial extent of a window according to the velocity 
-  if adaptflag(2) xszf=1+max(abs(vx),abs(vy)); else xszf=1; end
+  if adaptflag(2) 
+      xszf = 1 + max(abs(vx),abs(vy)); 
+  else
+      xszf = 1;
+  end
   %xszf=1;
   
-  brx=max(5,round(xszf*4*sqrt(sxl2)));
-  brt=max(5,round(4*sqrt(stl2)));
+  brx = max(5,round(xszf*4*sqrt(sxl2)));
+  brt = max(5,round(4*sqrt(stl2)));
 
   fcut=f(max(1,py-brx):min(ysize,py+brx),...
 	 max(1,px-brx):min(xsize,px+brx),...

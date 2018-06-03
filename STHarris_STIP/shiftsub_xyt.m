@@ -1,10 +1,10 @@
-function result=shiftsub_xyt(seq,xshift,yshift,tshift,copyval)
+function result = shiftsub_xyt(seq,xshift,yshift,tshift,copyval)
 
-result=seq;
-[ysize,xsize,tsize]=size(seq);
+result = seq;
+[ysize,xsize,tsize] = size(seq);
 
 if yshift>0
-  result(min(ysize,1+round(yshift)):ysize,:,:)=seq(1:max(1,ysize-round(yshift)),:,:);
+  result(min(ysize,1+round(yshift)):ysize,:,:) = seq(1:max(1,ysize-round(yshift)),:,:);
   for y=1:min(ysize,round(yshift))
     if copyval result(y,:,:)=seq(1,:,:);
     else result(y,:,:)=0;
@@ -22,16 +22,18 @@ end
 seq=result;
 
 if xshift>0
-  result(:,min(xsize,1+round(xshift)):xsize,:)=seq(:,1:max(1,xsize-round(xshift)),:);
-  for x=1:min(xsize,round(xshift))
-    if copyval result(:,x,:)=seq(:,1,:);
-    else result(:,x,:)=0;
+  result(:,min(xsize,1+round(xshift)):xsize,:) = seq(:,1:max(1,xsize-round(xshift)),:);
+  for x = 1:min(xsize,round(xshift))
+    if copyval 
+        result(:,x,:) = seq(:,1,:);
+    else result(:,x,:) = 0;
     end
   end
 elseif xshift<0
   result(:,1:max(1,xsize+round(xshift)),:)=seq(:,min(xsize,1-round(xshift)):xsize,:);
   for x=max(1,xsize+round(xshift)+1):xsize
-    if copyval result(:,x,:)=seq(:,xsize,:);
+    if copyval 
+        result(:,x,:)=seq(:,xsize,:);
     else result(:,x,:)=0;
     end
   end
