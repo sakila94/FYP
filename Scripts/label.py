@@ -20,13 +20,13 @@ for line in File.readlines():
 	key = line.split(".")[0]
 	if(key in data['database'].keys()):
 		vid = cv2.VideoCapture(line.split("\n")[0])
-		n_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+		vid_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
 		FPS = vid.get(cv2.CAP_PROP_FPS)
 		start_tim = data['database'][key]['annotations'][0]['segment'][0] 
 		end_tim = data['database'][key]['annotations'][0]['segment'][1] 
 		f_init = int(FPS * start_tim)
 		n_frames = int(FPS * (end_tim -start_tim))
-		#writer.writerow({'video_name': line, 'f-init':0, 'n-frames':n_frames, 'video-frames': 0, 'label-idx':data['database'][key]['annotations'][0]['label']})
-		writer.writerow({'video_name': line, 'f-init':f_init, 'n-frames':n_frames, 'video-frames': n_frames, 'label-idx':data['database'][key]['annotations'][0]['label']})
+		#print("%s %s"%(vid_frames/vid.get(cv2.CAP_PROP_FPS),data['database'][key]['url']))
+		writer.writerow({'video_name': line, 'f-init':f_init, 'n-frames':n_frames, 'video-frames': vid_frames, 'label-idx':data['database'][key]['annotations'][0]['label']})
 File.close()
 
