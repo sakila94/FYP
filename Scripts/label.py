@@ -27,6 +27,6 @@ for line in File.readlines():
 		f_init = int(FPS * start_tim)
 		n_frames = int(FPS * (end_tim -start_tim))
 		#print("%s %s"%(vid_frames/vid.get(cv2.CAP_PROP_FPS),data['database'][key]['url']))
-		writer.writerow({'video_name': line, 'f-init':f_init, 'n-frames':n_frames, 'video-frames': vid_frames, 'label-idx':data['database'][key]['annotations'][0]['label']})
+		writer.writerow({'video_name': key, 'f-init':f_init, 'n-frames':n_frames, 'video-frames': vid_frames, 'label-idx':data['database'][key]['annotations'][0]['label']})
 File.close()
 
