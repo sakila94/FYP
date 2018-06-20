@@ -12,7 +12,7 @@ with open('%s/dataset.json'%(path_s)) as f:
 	data = json.load(f)
 File = open("%s/exist_file.log"%(path_s),"r")
 csv_file = open("%s/labels.csv"%(path_s),"w")
-fieldnames = ['video_name','f-init','n-frames','video-frames','label-idx']
+fieldnames = ['video-name','f-init','n-frames','video-frames','label-idx']
 writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 writer.writeheader()
 os.chdir(path_d)
@@ -27,6 +27,6 @@ for line in File.readlines():
 		f_init = int(FPS * start_tim)
 		n_frames = int(FPS * (end_tim -start_tim))
 		#print("%s %s"%(vid_frames/vid.get(cv2.CAP_PROP_FPS),data['database'][key]['url']))
-		writer.writerow({'video_name': key, 'f-init':f_init, 'n-frames':n_frames, 'video-frames': vid_frames, 'label-idx':data['database'][key]['annotations'][0]['label']})
+		writer.writerow({'video-name': "v_%s"%key, 'f-init':f_init, 'n-frames':n_frames, 'video-frames': vid_frames, 'label-idx':data['database'][key]['annotations'][0]['label']})
 File.close()
 
