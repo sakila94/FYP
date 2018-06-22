@@ -16,7 +16,7 @@ function result = frameAVideo(name_prefix, format)
 if strcmp(format, 'avi')
     videoInfo = VideoReader(sprintf('%s.avi',name_prefix));
 elseif strcmp(format, 'mp4')
-    videoInfo = VideoReader(sprintf('%s.amp4',name_prefix));
+    videoInfo = VideoReader(sprintf('%s.mp4',name_prefix));
 else
     warning('Unsupported Video file format..');
     return;
@@ -30,7 +30,7 @@ f0 = il_rgb2gray(double(read(videoInfo, 1)));
 result = zeros([size(f0), floor(numFrames/2)]);
 
 for iFrame=1:2:numFrames
-    result(:,:,(iFrame+1)/2)=il_rgb2gray(double(read(videoInfo, iFrame)));
+    result(:,:,(iFrame+1)/2) = il_rgb2gray(double(read(videoInfo, iFrame)));
 end
 
 

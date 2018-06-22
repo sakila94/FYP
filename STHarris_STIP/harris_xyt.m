@@ -2,15 +2,20 @@
 % @func - harris_xyt(f, kparam, sxl2, stl2, sxi2, sti2, vx, vy)
 % @info - Computes spatio-temporal interest points based on
 %         Harris corner function.
-% @var - NEED TO DEFINE
-% @output - NEED TO DEFINE
+% @var - f: Video sequence
+%        kparam: Constant for calculate MU
+%        sxl2: Image smoothing variance (var)
+%        stl2: Video smoothing variance
+%        sxi2: Image smoothing var for second moment matrix
+%        sti2: Video smoothing var for second moment matrix
+% @output - pos: Matrix with positions, variances of spatial and 
+%             temporal, corresponding velocities along x and y,
+%             and relevant Lx, Ly, and Lt values
+%           val: Values for positions
+%           cimg: Harris function
+%           L: Smoothing images matrix
 % ------------------------------------------------------------ %
-function [pos,val,cimg,L] = harris_xyt(f,kparam,sxl2,stl2,sxi2,sti2,vx,vy)
-
-if nargin < 7
-    vx = 0;
-    vy = 0;
-end
+function [pos, val, cimg, L] = harris_xyt(f, kparam, sxl2, stl2, sxi2, sti2)
 
 fastflag = 1;
 
@@ -42,7 +47,9 @@ a33 = Lt.*Lt;
 clear Lx Ly Lt
 
 % ----------------------------------------- %
-% @brief - In this section, calculate mu
+% @brief - In this section, calculate MU
+% @note - Calculation of the matrix values
+%         given in EQUATION 7 in the paper
 if fastflag
     a11 = sepgaussconvfast_xyt(a11,sxi2,sti2);
     a12 = sepgaussconvfast_xyt(a12,sxi2,sti2);
@@ -63,38 +70,26 @@ end
 detC =  a11.*a22.*a33 + a12.*a23.*a13 + a13.*a12.*a23...
      - a11.*a23.*a23 - a12.*a12.*a33 - a13.*a22.*a13;
 
-%trace2C = (a11 + a22 + a33).^2;
 trace3C = (a11 + a22 + a33).^3;
   
-% Harris function in 3D
-%cimg=detC-0.04*trace2C;
+% ----------------------------------------- %
+% @brief - Harris function in 3D
+% @note - In paper, it is denoted letter H
+% @equation - H = det(MU) - k*trace^3(MU)
 cimg = detC - kparam*trace3C;
 
-% local spatio-temporal maxima
+% Local spatio-temporal maxima
 [pos, val] = locmax26(cimg);
 
-if size(pos,1)>0
+if size(pos, 1) > 0
     % velocity estimates
-    [ysz,xsz,tsz] = size(f);
-    ind = sub2ind([ysz xsz tsz],pos(:,1),pos(:,2),pos(:,3));
-
-    %vx=-a13(ind)./(a33(ind));
-    %vy=-a23(ind)./(a33(ind));
+    [ysz, xsz, tsz] = size(f);
+    ind = sub2ind([ysz xsz tsz], pos(:, 1), pos(:, 2), pos(:, 3));
 
     vxa = (a12(ind).*a23(ind)-a22(ind).*a13(ind))./(a11(ind).*a22(ind)-a12(ind).*a12(ind));
     vya = (a12(ind).*a13(ind)-a11(ind).*a23(ind))./(a11(ind).*a22(ind)-a12(ind).*a12(ind));
 
-    %vxb=zeros(size(ind));
-    %vyb=zeros(size(ind));
-    %indlen=length(ind);
-    %for i=1:indlen
-    %  ii=ind(i);
-    %  [u,s,v]=svd([a11(ii) a12(ii) a13(ii); a12(ii) a22(ii) a23(ii); a13(ii) a23(ii) a33(ii)]);
-    %  vxb(i)=u(1,3)/u(3,3);
-    %  vyb(i)=u(2,3)/u(3,3);
-    %end
-
     npts = size(pos, 1);
-    pos = [pos sxl2*ones(npts, 1) stl2*ones(npts, 1) vxa vya ... %vx*ones(npts, 1) vy*ones(npts, 1) ...
+    pos = [pos sxl2*ones(npts, 1) stl2*ones(npts, 1) vxa vya ...
        a11(ind) a12(ind) a13(ind) a22(ind) a23(ind) a33(ind)];
 end

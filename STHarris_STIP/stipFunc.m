@@ -40,24 +40,34 @@ if 1
     % @brief - Read the Section 2.1 and 2.2 in On Space-Time
     %          Interest Points
     S = 2;
-    sxl2 = 4; % Image Smoothing variance
-    sxi2 = S*sxl2; % Smooth the Second Moment Matrix 
-    stl2 = 2; % Video Smoothing variance in time
-    sti2 = S*stl2; % Smooth the Second Moment Matrix
+    sxl2 = 4;       % Image Smoothing variance
+    sxi2 = S*sxl2;  % Smooth the Second Moment Matrix 
+    stl2 = 2;       % Video Smoothing variance in time
+    sti2 = S*stl2;  % Smooth the Second Moment Matrix
     % ----------------------------------------- %
 
     % Detect all points
-    fprintf('Detecting interest points...\n')  
-    [pos,val,cimg,L] = harris_xyt(f1,0.01,sxl2,stl2,sxi2,sti2);
+    fprintf('Detecting interest points...\n') 
+    % pos: STIP points of the Video
+    % val: Value for corresponding positions
+    %      selected by 'pos' matrix.
+    % cimg: Corners of the images
+    % L: Images after smoothing operation
+    [pos, val, cimg, L] = harris_xyt(f1, 0.01, sxl2, stl2, sxi2, sti2);
 
-    % Sort the points and select the strongest ones
+    % ----------------------------------------- %
+    % @brief - Sort the points and select the strongest ones
+    % sval: Sorted values in ascending order
+    % sposind: Original positions of the sorted values
     [sval, sposind] = sort(-val);
     hthresh = max(val(:))/10;
-    npts = min(size(pos,1),40); % Number of points
-    possel = pos(sposind(1:npts),:); % This is the matrix(npts x 13(default))
+    npts = min(size(pos, 1), 40);       % Number of points
+    % @brief - possel - This is the matrix(npts x 13(default))
+    %          and shows the best STIP harris points 
+    possel = pos(sposind(1:npts), :);   
 
     % Display detected points
-    showcirclefeatures_xyt(f1,possel(:,1:5),[1 1 0]);
+    showcirclefeatures_xyt(f1, possel(:, 1:5), [1 1 0]);
     fprintf('press a key...\n'), pause
 end
 
@@ -69,11 +79,14 @@ if 1
     posadaptall = [];
     valadaptall = [];
     for i = 1 : size(possel, 1)
-        posinit = possel(i, :); % Every detected Interest Points 
-        fprintf('point %d of %d\n',i,size(possel,1))
+        % Assign a row of STIP points at a time upto size of 
+        % the matrix 'possel'. 
+        posinit = possel(i, :);         
+
+        fprintf('point %d of %d\n', i, size(possel, 1))
         [pos, posevol, val] = adaptharris2_xyt(f1, posinit, 0.25, 0.25,...
                                                20, [1 1 1], 64, 64);
-        if size(pos,1) > 0
+        if size(pos, 1) > 0
             posadaptall = [posadaptall; pos];
             valadaptall = [valadaptall; val];
         end

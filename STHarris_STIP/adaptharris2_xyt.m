@@ -6,31 +6,37 @@
 %           i) Max of a Harris function over (x,y,t)
 %           ii) Extrema of a normalised Laplace operator over scales (sx2,st2)
 %               and computed in the velocity-adapted neighbourhood.
-%         The result is reported in pos. 
-%         The trajectory from posinit to pos is returned in posevol.
-%         pos is an empty vector if convergency could not be reached.
-%         Optional input parameters sxstep, ststep (=0.25 default) set the scale 
-%         increment between iteration steps. maxiter (=20 default) gives the max 
-%         number of iterations.
-%         adaptflag = [a1 a2 a3]: a1~=0 => scale adaption
-%                                 a2~=0 => velocity adaption
-%                                 a3~=0 => x-y-t position adaption
-%                     []: (default) adapt over all parameters
-% @var - NEED TO DEFINE
-% @output - NEED TO DEFINE
+% @var -    f: Video sequence
+%           posinit: STIP row stream
+%           sxstep: Set the scale increment between iteration steps along spatial
+%                   Default = 0.25
+%           ststep: Set the scale increment between iteration steps along temporal
+%                   Default = 0.25
+%           maxiter: Maximum number of iterations
+%                    Default = 20
+%           adaptflag: [a1 a2 a3]:- a1~=0 => scale adaption
+%                                   a2~=0 => velocity adaption
+%                                   a3~=0 => x-y-t position adaption
+%                      []: (default) adapt over all parameters
+%           sxmax: Maximum spatial value
+%           stmax: Maximum temporal value
+% @output - pos: The result is reported. If convergency could not be reached,
+%                pos is an empty vector
+%           poseval: The trajectory from posinit to pos is returned
+%           val: Values for corresponding positions
 % ------------------------------------------------------------------------------------------------------- %
-function [pos, posevol, val] = adaptharris2_xyt(f,posinit,sxstep,ststep,maxiter,adaptflag,sxmax,stmax)
+function [pos, posevol, val] = adaptharris2_xyt(f, posinit, sxstep, ststep, maxiter, adaptflag, sxmax, stmax)
 
 % ---------------------------------------------------------------------------------- %
-% @brief - 
-if size(posinit,1) > 1
+% @brief - Conversion of STIP row matrix to column matrix
+if size(posinit, 1) > 1
     posinit = transpose(posinit);
 end
 
 valsel = 0;
 possel = posinit;
 posprev = possel;
-posevol(1,:) = posinit;
+posevol(1, :) = posinit;
 % ---------------------------------------------------------------------------------- %
 
 % ---------------------------------------------------------------------------------- %
@@ -58,8 +64,8 @@ if size(adaptflag) == 0
 end
 % ---------------------------------------------------------------------------------- %
 
-scalesteporig = 1*sqrt(sxstep^2 + ststep^2);
-%scalesteporig = sqrt(2)*sqrt(sxstep^2 + ststep^2);
+%scalesteporig = 1*sqrt(sxstep^2 + ststep^2);
+scalesteporig = sqrt(2)*sqrt(sxstep^2 + ststep^2);
 scalestep = scalesteporig;
 
 iter = 0;
@@ -67,24 +73,19 @@ velconvflag = 0;
 loopconvflag = 0;
 scaleconvflag = 0;
 divergenceflag = 0;
-[ysize,xsize,tsize] = size(f);
-%while ((iter==0)|( ((posprev-possel)*transpose(posprev-possel))>0 )) & ...
-%      ((~adaptflag(1) | ~(adaptflag(1)&scaleconvflag)) &...
-%       (~adaptflag(2) | ~(adaptflag(2)&velconvflag))) &...
-%      ~loopconvflag & ~divergenceflag & ...
-%      (iter<maxiter)
+[ysize, xsize, tsize] = size(f);
 
 % ---------------------------------------------------------------------------------- %
-while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-possel(1:3)))==0))...
+while ~((  (~(iter == 0) | (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3) - possel(1:3))) == 0))...
          & ~xor(adaptflag(1), scaleconvflag)...
          & ~xor(adaptflag(2), velconvflag))...
         | loopconvflag ...
         | divergenceflag ...
-        | (iter>=maxiter))
+        | (iter >= maxiter))
 
     iter = iter + 1;
 
-    % Cut out a part of f
+    % Cut out the parts from STIP stream(posinit)
     px = possel(1,2);
     py = possel(1,1);
     pt = possel(1,3);
@@ -99,14 +100,15 @@ while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-pos
     else
         xszf = 1;
     end
-    %xszf=1;
 
     brx = max(5, round(xszf*4*sqrt(sxl2)));
     brt = max(5, round(4*sqrt(stl2)));
 
-    fcut = f(max(1,py-brx) : min(ysize,py+brx),...
-           max(1,px-brx):min(xsize,px+brx),...
-           max(1,pt-brt):min(tsize,pt+brt));
+    % Cut from the original video sequence
+    fcut = f(max(1, py - brx) : min(ysize, py + brx),...
+           max(1, px - brx):min(xsize, px + brx),...
+           max(1, pt - brt):min(tsize, pt + brt));
+
     cy = min(brx + 1, py);
     cx = min(brx + 1, px);
     ct = min(brt + 1, pt);
@@ -131,15 +133,6 @@ while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-pos
 
     % Adapt scales
     if adaptflag(1)
-        %Lxxval=filter3(Lcut,dxxmask3,'valid');  
-        %Lyyval=filter3(Lcut,dyymask3,'valid');
-        %Lttval=filter3(Lcut,dttmask3,'valid');
-        %Lxxxxval=filter3(Lcut,dxxxxmask3,'valid');
-        %Lxxyyval=filter3(Lcut,dxxyymask3,'valid');
-        %Lyyyyval=filter3(Lcut,dyyyymask3,'valid');
-        %Lxxttval=filter3(Lcut,dxxttmask3,'valid');
-        %Lyyttval=filter3(Lcut,dyyttmask3,'valid');
-        %Lttttval=filter3(Lcut,dttttmask3,'valid');
 
         prodmsize = prod(size(dxmask3));
         Lxxval = sum(Lcut(:).*reshape(dxxmask3, [prodmsize, 1]));
@@ -196,7 +189,6 @@ while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-pos
               sxl2 = sxl2*2^(scalestep*v(1));
               stl2 = stl2*2^(scalestep*v(2));
               scaleconvflag = 0;
-              %disp(sprintf('     update scales, no scale converegnce yet'))
         end
     else
         lapval = 0;
@@ -213,16 +205,14 @@ while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-pos
         sxi2 = 2*sxl2; 
         sti2 = 2*stl2;
 
-        [pos,val,cimg,L] = harris_xyt(fcut, kparam, sxl2, stl2, sxi2, sti2);
+        [pos, val, cimg, L] = harris_xyt(fcut, kparam, sxl2, stl2, sxi2, sti2);
 
         % Update position vector
         if size(pos, 1) > 0 % if any harris point is found
           
             % Update posiotion according to the velocity warp
             if adaptflag(2)
-                %[(ct-pos(:,3))*vy (ct-pos(:,3))*vx]
                 pos(:, 1 : 2) = pos(:, 1 : 2) + round([(ct-pos(:, 3))*vy (ct - pos(:, 3))*vx]);
-                %pos(:,1:2)
             end
           
             % Convert positions to f-coordinates
@@ -265,12 +255,6 @@ while ~((  (~(iter==0) | (((posprev(1:3)-possel(1:3))*transpose(posprev(1:3)-pos
 
     disp(sprintf('   iter: %d, x=%d, y=%d, t=%d, sx=%1.5f, st=%1.5f, vx=%1.2f, vy=%1.2f, Lapval=%2.1f',...
            iter,possel(2),possel(1),possel(3),2*sxl2,2*stl2,possel(6),possel(7),lapval))
-
-    %disp([((iter==0)|( ((posprev-possel)*transpose(posprev-possel))>0 )) ...
-    %(~adaptflag(1) | ~(adaptflag(1)&scaleconvflag)) ...
-    %(~adaptflag(2) | ~(adaptflag(2)&velconvflag)) ...
-    %~loopconvflag ...
-    %(iter<maxiter)])
 end
 % ---------------------------------------------------------------------------------- %
   
@@ -279,9 +263,6 @@ pos = [];
 val = [];
 
 % In case of convergence
-%if ((posprev - possel)*(posprev - possel)') == 0 | loopconvflag | ...
-%   (scaleconvflag & adaptflag(1)) | (velconvflag & adaptflag(2))
-
 if ~divergenceflag
     pos = possel;
     val = valsel;
