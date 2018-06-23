@@ -76,12 +76,12 @@ divergenceflag = 0;
 [ysize, xsize, tsize] = size(f);
 
 % ---------------------------------------------------------------------------------- %
-while ~((  (~(iter == 0) | (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3) - possel(1:3))) == 0))...
-         & ~xor(adaptflag(1), scaleconvflag)...
-         & ~xor(adaptflag(2), velconvflag))...
-        | loopconvflag ...
-        | divergenceflag ...
-        | (iter >= maxiter))
+while ~((  (~(iter == 0) || (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3) - possel(1:3))) == 0))...
+         && ~xor(adaptflag(1), scaleconvflag)...
+         && ~xor(adaptflag(2), velconvflag))...
+        || loopconvflag ...
+        || divergenceflag ...
+        || (iter >= maxiter))
 
     iter = iter + 1;
 
@@ -134,7 +134,7 @@ while ~((  (~(iter == 0) | (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3)
     % Adapt scales
     if adaptflag(1)
 
-        prodmsize = prod(size(dxmask3));
+        prodmsize = numel(dxmask3);
         Lxxval = sum(Lcut(:).*reshape(dxxmask3, [prodmsize, 1]));
         Lyyval = sum(Lcut(:).*reshape(dyymask3, [prodmsize, 1]));
         Lttval = sum(Lcut(:).*reshape(dttmask3, [prodmsize, 1]));
@@ -194,18 +194,18 @@ while ~((  (~(iter == 0) | (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3)
         lapval = 0;
     end
 
-    if sx > sxmax | st > stmax
+    if sx > sxmax || st > stmax
         divergenceflag = 1;
     end
 
-    if ~(scaleconvflag & velconvflag)
+    if ~(scaleconvflag && velconvflag)
 
         % Re-detect harris points
         kparam = 0.001;
         sxi2 = 2*sxl2; 
         sti2 = 2*stl2;
 
-        [pos, val, cimg, L] = harris_xyt(fcut, kparam, sxl2, stl2, sxi2, sti2);
+        [pos, val, ~, ~] = harris_xyt(fcut, kparam, sxl2, stl2, sxi2, sti2);
 
         % Update position vector
         if size(pos, 1) > 0 % if any harris point is found
@@ -227,17 +227,17 @@ while ~((  (~(iter == 0) | (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3)
               
             % Select the closest point
             dvec = pos(:, 1 : 3) - (ones(size(pos, 1), 1)*posinit(1 : 3));
-            [dmin, dminind] = min(sum(dvec.*dvec, 2));
+            [~, dminind] = min(sum(dvec.*dvec, 2));
 
             posprev = possel;
-            possel = [pos(dminind, :)];
-            valsel = [val(dminind, :)];
+            possel = (pos(dminind, :));
+            valsel = (val(dminind, :));
             posevol(iter+1, :) = possel;
                
             if adaptflag(2)
                 dvxmax = 0.01; 
                 dvymax=0.01;
-                if abs(posprev(6) - possel(6)) < dvxmax & abs(posprev(7) - possel(7)) < dvymax
+                if abs(posprev(6) - possel(6)) < dvxmax && abs(posprev(7) - possel(7)) < dvymax
                     velconvflag = 1;
                 else
                     velconvflag = 0;
@@ -249,12 +249,12 @@ while ~((  (~(iter == 0) | (((posprev(1:3) - possel(1:3))*transpose(posprev(1:3)
         end
     end
 
-    if possel(2) < 1 | possel(1) < 1 | possel(2) > xsize | possel(1) > ysize | iter >= maxiter
+    if possel(2) < 1 || possel(1) < 1 || possel(2) > xsize || possel(1) > ysize || iter >= maxiter
         divergenceflag = 1;
     end
 
-    disp(sprintf('   iter: %d, x=%d, y=%d, t=%d, sx=%1.5f, st=%1.5f, vx=%1.2f, vy=%1.2f, Lapval=%2.1f',...
-           iter,possel(2),possel(1),possel(3),2*sxl2,2*stl2,possel(6),possel(7),lapval))
+    fprintf('   iter: %d, x=%d, y=%d, t=%d, sx=%1.5f, st=%1.5f, vx=%1.2f, vy=%1.2f, Lapval=%2.1f\n',...
+           iter,possel(2),possel(1),possel(3),2*sxl2,2*stl2,possel(6),possel(7),lapval)
 end
 % ---------------------------------------------------------------------------------- %
   
@@ -269,10 +269,10 @@ if ~divergenceflag
     if loopconvflag
         disp('Loop-convergence')
     end
-    if adaptflag(1) & scaleconvflag
+    if adaptflag(1) && scaleconvflag
         disp('Scale convergence')
     end
-    if adaptflag(2) & velconvflag
+    if adaptflag(2) && velconvflag
         disp('Velocity convergence')
     end
 else

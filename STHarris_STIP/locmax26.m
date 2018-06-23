@@ -13,7 +13,7 @@ res = ones(size(f));
 for i = -1:1
 	for j = -1:1
 		for k = -1:1
-		  	if i|j|k
+		  	if i||j||k
 		  	  	res = res.*(f > fext(2 + i:end-1 + i,...
 		  	  		  2 + j:end-1 + j, 2 + k:end-1 + k));
 		  	end

@@ -2,22 +2,25 @@
 % @func - NEED TO DEFINE
 % @info - detect and adapt space-time interest points as well
 %         as compute their descriptors.
-% @var - 	videoName: Name of the video with directory
+% @var - 	dataPath: Directory of the video folder
+%			videoName: Name of the video 
 %			format: Type of the video
 %					Supported to '.avi' and '.mp4'
-% @output - fileDataStip: STIP database file.
-%						  File type of the output is '.hdf5'
+%			hd5File: hdf5 file that needed to create
+% @output - posadaptall: STIP feature array
 % ------------------------------------------------------------ %
-function [fileDataStip] = stipFeatExtract(videoName, format);
+function [posadaptall] = stipFeatExtract(dataPath, videoName, format, hd5File)
 
 % ------------------------------------------------------------ %
 % Framing the Video
 % ------------------------------------------------------------ %
 
+videoWithDir = sprintf('%s/%s', dataPath, videoName);
+
 if strcmp(format, 'avi')
-    videoInfo = VideoReader(sprintf('%s.avi',name_prefix));
+    videoInfo = VideoReader(sprintf('%s.avi', videoWithDir));
 elseif strcmp(format, 'mp4')
-    videoInfo = VideoReader(sprintf('%s.mp4',name_prefix));
+    videoInfo = VideoReader(sprintf('%s.mp4', videoWithDir));
 else
     warning('Unsupported Video file format..');
     return;
@@ -114,4 +117,11 @@ fprintf('press a key...\n'), pause
 % ------------------------------------------------------------ %
 % Create the Database File for Keep Computed Adapt STIPs
 % ------------------------------------------------------------ % 
-% TODO: Have a look on h5create, h5write, etc.
+% Create the Database file if not exist, and open the dataset
+% name for STIPs to be kept
+videoName = sprintf('/%s', videoName);
+h5create(hd5File, videoName, [Inf Inf], 'Deflate', 9);
+
+% Write down the corresponding STIPs on the database file
+h5write(hd5File, videoName, posadaptall);
+
