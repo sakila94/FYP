@@ -6,10 +6,9 @@
 %			videoName: Name of the video 
 %			format: Type of the video
 %					Supported to '.avi' and '.mp4'
-%			hd5File: hdf5 file that needed to create
 % @output - posadaptall: STIP feature array
 % ------------------------------------------------------------ %
-function [posadaptall] = stipFeatExtract(dataPath, videoName, format, hd5File)
+function [posadaptall] = stipFeatExtract(dataPath, videoName, format)
 
 % ------------------------------------------------------------ %
 % Framing the Video
@@ -34,7 +33,7 @@ f0 = il_rgb2gray(double(read(videoInfo, 1)));
 f1 = zeros([size(f0), floor(numFrames/2)]);
 
 for iFrame = 1:2:numFrames
-    f1(:,:,(iFrame+1)/2) = il_rgb2gray(double(read(videoInfo, iFrame)));
+    f1(:, :, (iFrame + 1)/2) = il_rgb2gray(double(read(videoInfo, iFrame)));
 end
 
 % ------------------------------------------------------------ %
@@ -113,15 +112,3 @@ end
 showcirclefeatures_xyt(f1, posadaptall(:, 1 : 5), [1 1 0]);
 fprintf('press a key...\n'), pause
 % ------------------------------------------------------------ %
-
-% ------------------------------------------------------------ %
-% Create the Database File for Keep Computed Adapt STIPs
-% ------------------------------------------------------------ % 
-% Create the Database file if not exist, and open the dataset
-% name for STIPs to be kept
-videoName = sprintf('/%s', videoName);
-h5create(hd5File, videoName, [Inf Inf], 'Deflate', 9);
-
-% Write down the corresponding STIPs on the database file
-h5write(hd5File, videoName, posadaptall);
-
